@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CampaignProvider } from './context/CampaignContext';
+import { CampaignProvider } from './Context/CampaignContext';
 import ContentTab from './components/ContentTab';
 import StylingTab from './components/StylingTab';
 import MobilePreview from './components/MobilePreview';
