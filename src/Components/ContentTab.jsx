@@ -1,164 +1,154 @@
-import React from 'react';
-import { useCampaign } from '../context/CampaignContext';
+import React, { useState } from 'react';
+import { useCampaign } from '../Context/CampaignContext';
 
-export default function ContentTab() {
-  const { campaignData, updateContent } = useCampaign();
-  const { content } = campaignData;
+function ContentTab() {
+  const { campaignData, updateCampaign } = useCampaign();
+  const [newBadge, setNewBadge] = useState('');
 
-  const handleOptionChange = (index, value) => {
-    const updatedOptions = [...content.options];
-    updatedOptions[index] = value;
-    updateContent('options', updatedOptions);
+  const addBadge = (e) => {
+    e.preventDefault();
+    if (!newBadge.trim()) return;
+    updateCampaign('badges', [...campaignData.badges, newBadge.trim()]);
+    setNewBadge('');
   };
 
-  const addOption = () => {
-    updateContent('options', [...content.options, 'New Badge']);
-  };
-
-  const deleteOption = (index) => {
-    updateContent('options', content.options.filter((_, i) => i !== index));
-  };
-
-  const handleMediaUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      updateContent('thankYouMedia', url);
-    }
+  const removeBadge = (indexToRemove) => {
+    updateCampaign(
+      'badges',
+      campaignData.badges.filter((_, i) => i !== indexToRemove)
+    );
   };
 
   return (
-    <div className="space-y-6 max-h-[calc(100vh-160px)] overflow-y-auto pr-2 pb-6">
-      {/* INITIAL FEEDBACK */}
-      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-4">
-        <h3 className="font-bold text-gray-800 border-b pb-2 text-xs uppercase tracking-wider">Initial Feedback Screen</h3>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Popup Title</label>
-          <input
-            type="text"
-            value={content.initialTitle}
-            onChange={(e) => updateContent('initialTitle', e.target.value)}
-            className="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Popup Subtitle</label>
-          <input
-            type="text"
-            value={content.initialSubtitle}
-            onChange={(e) => updateContent('initialSubtitle', e.target.value)}
-            className="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-          />
-        </div>
-      </div>
-
-      {/* INTERACTIVE COMPONENT CONFIGS */}
-      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-4">
-        <h3 className="font-bold text-gray-800 border-b pb-2 text-xs uppercase tracking-wider">Interactive Elements</h3>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Rating Display Style</label>
-          <select
-            value={content.ratingType}
-            onChange={(e) => updateContent('ratingType', e.target.value)}
-            className="w-full border border-gray-300 p-2.5 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-          >
-            <option value="stars">Stars (★)</option>
-            <option value="numbers">Numbers (1-5)</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5">Feedback Tags</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {content.options.map((option, index) => (
-              <div key={index} className="flex gap-1.5 items-center bg-gray-50 p-1.5 rounded-lg border border-gray-200">
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  className="w-full border-0 bg-transparent px-1 py-0.5 text-xs font-medium focus:ring-0 outline-none"
-                />
-                <button
-                  onClick={() => deleteOption(index)}
-                  className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-md transition"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
+    <div className="space-y-6">
+      {/* Screen View Mode Switcher */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Simulated Screen Layout View</label>
+        <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-lg">
           <button
-            onClick={addOption}
-            className="mt-3 text-xs text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-bold px-3 py-2 rounded-lg transition"
+            type="button"
+            onClick={() => updateCampaign('currentScreen', 'feedback')}
+            className={`py-2 text-xs font-medium rounded-md transition ${
+              campaignData.currentScreen === 'feedback' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'
+            }`}
           >
-            + Add Option Badge
+            1. Feedback Window
+          </button>
+          <button
+            type="button"
+            onClick={() => updateCampaign('currentScreen', 'success')}
+            className={`py-2 text-xs font-medium rounded-md transition ${
+              campaignData.currentScreen === 'success' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            2. Success State
           </button>
         </div>
+      </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-xs font-semibold text-gray-600">Provide Comment Input</span>
-          <label className="relative inline-flex items-center cursor-pointer">
+      <hr className="border-gray-200" />
+
+      {campaignData.currentScreen === 'feedback' ? (
+        <>
+          {/* Feedback Setup */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Campaign Header Title</label>
             <input
-              type="checkbox"
-              checked={content.showComment}
-              onChange={(e) => updateContent('showComment', e.target.checked)}
-              className="sr-only peer"
+              type="text"
+              value={campaignData.title}
+              onChange={(e) => updateCampaign('title', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
-            <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-          </label>
-        </div>
+          </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Submit Trigger Button Text</label>
-          <input
-            type="text"
-            value={content.submitText}
-            onChange={(e) => updateContent('submitText', e.target.value)}
-            className="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-          />
-        </div>
-      </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sub-header Copy</label>
+            <textarea
+              rows="2"
+              value={campaignData.subtitle}
+              onChange={(e) => updateCampaign('subtitle', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
 
-      {/* THANK YOU SCREEN OPTIONS */}
-      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-4">
-        <h3 className="font-bold text-gray-800 border-b pb-2 text-xs uppercase tracking-wider">Thank You Screen</h3>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Banner Artwork</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleMediaUpload}
-            className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Success Title</label>
-          <input
-            type="text"
-            value={content.thankYouTitle}
-            onChange={(e) => updateContent('thankYouTitle', e.target.value)}
-            className="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Success Message Description</label>
-          <input
-            type="text"
-            value={content.thankYouSubtitle}
-            onChange={(e) => updateContent('thankYouSubtitle', e.target.value)}
-            className="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Dismiss Control Button Text</label>
-          <input
-            type="text"
-            value={content.thankYouButtonText}
-            onChange={(e) => updateContent('thankYouButtonText', e.target.value)}
-            className="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-          />
-        </div>
-      </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Rating Scale Engine</label>
+            <div className="flex space-x-4">
+              <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                <input
+                  type="radio"
+                  name="ratingType"
+                  checked={campaignData.ratingType === 'stars'}
+                  onChange={() => updateCampaign('ratingType', 'stars')}
+                  className="text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>Star Ratings (★)</span>
+              </label>
+              <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                <input
+                  type="radio"
+                  name="ratingType"
+                  checked={campaignData.ratingType === 'numeric'}
+                  onChange={() => updateCampaign('ratingType', 'numeric')}
+                  className="text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>Numerical Points (1-5)</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Badges system */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Interactive Feedback Pills</label>
+            <form onSubmit={addBadge} className="flex gap-2 mb-3">
+              <input
+                type="text"
+                placeholder="e.g., Support, Quality..."
+                value={newBadge}
+                onChange={(e) => setNewBadge(e.target.value)}
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              <button type="submit" className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition">
+                Add Tag
+              </button>
+            </form>
+            <div className="flex flex-wrap gap-1.5">
+              {campaignData.badges.map((badge, idx) => (
+                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                  {badge}
+                  <button type="button" onClick={() => removeBadge(idx)} className="text-gray-400 hover:text-red-500 font-bold ml-1">
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Success Screen Config */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Success Title Message</label>
+            <input
+              type="text"
+              value={campaignData.successTitle}
+              onChange={(e) => updateCampaign('successTitle', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Success Subtitle Message</label>
+            <textarea
+              rows="3"
+              value={campaignData.successSubtitle}
+              onChange={(e) => updateCampaign('successSubtitle', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }
+
+export default ContentTab;
