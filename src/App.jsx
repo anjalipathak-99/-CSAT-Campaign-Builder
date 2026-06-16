@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { CampaignProvider } from './Context/CampaignContext';
-import ContentTab from './components/ContentTab';
-import StylingTab from './components/StylingTab';
-import MobilePreview from './components/MobilePreview';
+import ContentTab from './Components/ContentTab';
+import StylingTab from './Components/StylingTab';
+import MobilePreview from './Components/MobilePreview';
 
 function App() {
   const [activeTab, setActiveTab] = useState('content'); // 'content' or 'styling'
