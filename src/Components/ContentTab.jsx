@@ -5,17 +5,20 @@ function ContentTab() {
   const { campaignData, updateCampaign } = useCampaign();
   const [newBadge, setNewBadge] = useState('');
 
+  // Protect array operations by formatting a fallback fallback reference state
+  const badgesList = campaignData?.badges || [];
+
   const addBadge = (e) => {
     e.preventDefault();
     if (!newBadge.trim()) return;
-    updateCampaign('badges', [...campaignData.badges, newBadge.trim()]);
+    updateCampaign('badges', [...badgesList, newBadge.trim()]);
     setNewBadge('');
   };
 
   const removeBadge = (indexToRemove) => {
     updateCampaign(
       'badges',
-      campaignData.badges.filter((_, i) => i !== indexToRemove)
+      badgesList.filter((_, i) => i !== indexToRemove)
     );
   };
 
@@ -29,7 +32,7 @@ function ContentTab() {
             type="button"
             onClick={() => updateCampaign('currentScreen', 'feedback')}
             className={`py-2 text-xs font-medium rounded-md transition ${
-              campaignData.currentScreen === 'feedback' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'
+              campaignData?.currentScreen === 'feedback' ? 'bg-white shadow text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             1. Feedback Window
@@ -38,7 +41,7 @@ function ContentTab() {
             type="button"
             onClick={() => updateCampaign('currentScreen', 'success')}
             className={`py-2 text-xs font-medium rounded-md transition ${
-              campaignData.currentScreen === 'success' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'
+              campaignData?.currentScreen === 'success' ? 'bg-white shadow text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             2. Success State
@@ -48,16 +51,17 @@ function ContentTab() {
 
       <hr className="border-gray-200" />
 
-      {campaignData.currentScreen === 'feedback' ? (
+      {campaignData?.currentScreen === 'feedback' ? (
         <>
           {/* Feedback Setup */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Campaign Header Title</label>
             <input
               type="text"
-              value={campaignData.title}
+              value={campaignData?.title || ''}
               onChange={(e) => updateCampaign('title', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
+              placeholder="How happy are you with our service?"
             />
           </div>
 
@@ -65,30 +69,31 @@ function ContentTab() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Sub-header Copy</label>
             <textarea
               rows="2"
-              value={campaignData.subtitle}
+              value={campaignData?.subtitle || ''}
               onChange={(e) => updateCampaign('subtitle', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm resize-none"
+              placeholder="Your feedback helps us improve daily."
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Rating Scale Engine</label>
             <div className="flex space-x-4">
-              <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+              <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer select-none">
                 <input
                   type="radio"
                   name="ratingType"
-                  checked={campaignData.ratingType === 'stars'}
+                  checked={campaignData?.ratingType === 'stars'}
                   onChange={() => updateCampaign('ratingType', 'stars')}
                   className="text-indigo-600 focus:ring-indigo-500"
                 />
                 <span>Star Ratings (★)</span>
               </label>
-              <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+              <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer select-none">
                 <input
                   type="radio"
                   name="ratingType"
-                  checked={campaignData.ratingType === 'numeric'}
+                  checked={campaignData?.ratingType === 'numeric'}
                   onChange={() => updateCampaign('ratingType', 'numeric')}
                   className="text-indigo-600 focus:ring-indigo-500"
                 />
@@ -108,19 +113,22 @@ function ContentTab() {
                 onChange={(e) => setNewBadge(e.target.value)}
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
-              <button type="submit" className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition">
+              <button type="submit" className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition shrink-0">
                 Add Tag
               </button>
             </form>
-            <div className="flex flex-wrap gap-1.5">
-              {campaignData.badges.map((badge, idx) => (
-                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+            <div className="flex flex-wrap gap-1.5 p-2 bg-gray-50 rounded-lg min-h-[40px] border border-gray-150">
+              {badgesList.map((badge, idx) => (
+                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-white text-gray-800 border border-gray-200 shadow-sm">
                   {badge}
                   <button type="button" onClick={() => removeBadge(idx)} className="text-gray-400 hover:text-red-500 font-bold ml-1">
                     ×
                   </button>
                 </span>
               ))}
+              {badgesList.length === 0 && (
+                <p className="text-xs text-gray-400 italic m-auto">No tags created yet.</p>
+              )}
             </div>
           </div>
         </>
@@ -131,18 +139,20 @@ function ContentTab() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Success Title Message</label>
             <input
               type="text"
-              value={campaignData.successTitle}
+              value={campaignData?.successTitle || ''}
               onChange={(e) => updateCampaign('successTitle', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
+              placeholder="Thank You!"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Success Subtitle Message</label>
             <textarea
               rows="3"
-              value={campaignData.successSubtitle}
+              value={campaignData?.successSubtitle || ''}
               onChange={(e) => updateCampaign('successSubtitle', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm resize-none"
+              placeholder="Your feedback has been successfully recorded."
             />
           </div>
         </>
