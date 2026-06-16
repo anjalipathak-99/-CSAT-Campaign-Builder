@@ -4,9 +4,8 @@ FeedbackFlow is an interactive, high-fidelity React application designed for con
 
 ---
 
-## 🚀 Live Links
-* **Production Deployment:** [https://csat-campaign-builder.netlify.app](https://csat-campaign-builder.netlify.app)
-* **Preview Channel:** [https://main--csat-campaign-builder.netlify.app](https://main--csat-campaign-builder.netlify.app)
+## 🚀 Live Link
+* **Production Deployment:** [https://csat-campaign-project.netlify.app/](https://csat-campaign-project.netlify.app/)
 
 ---
 
@@ -61,8 +60,8 @@ Follow these steps to configure and boot your development ecosystem locally:
 
 1. Clone the project repository
 Bash
-git clone [https://github.com/your-username/csat-campaign-builder.git](https://github.com/your-username/csat-campaign-builder.git)
-cd csat-campaign-builder
+git clone [https://github.com/your-username/csat-campaign-project.git](https://github.com/your-username/csat-campaign-project.git)
+cd csat-campaign-project
 2. Download dependent modules
 Bash
 npm install
@@ -73,7 +72,7 @@ Open your web browser and target your assigned port, typically: http://localhost
 
 🌐 Netlify Production Build & Deploy Options
 Single Page Application (SPA) Fallback Configuration
-To prevent your web browser from throwing unhandled 404 Page Not Found network anomalies when reloading paths, a specialized redirect rule is placed inside your root static path (public/netlify.toml):
+To prevent your web browser from throwing unhandled 404 Page Not Found network anomalies when reloading paths or interacting with routing configurations, a specialized redirect rule is placed inside your root static path (public/netlify.toml):
 
 Ini, TOML
 [[redirects]]
@@ -81,7 +80,7 @@ Ini, TOML
   to = "/index.html"
   status = 200
 Compiling Build Outputs
-To compile optimization bundles manually prior to shipping to your host provider, trigger the build pipeline:
+To compile optimization bundles manually prior to shipping to your hosting provider, trigger the build pipeline:
 
 Bash
 # Compile and output production files to the /dist folder
