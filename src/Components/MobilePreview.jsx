@@ -1,125 +1,121 @@
 import React, { useState } from 'react';
-import { useCampaign } from '../context/CampaignContext';
+import { useCampaign } from '../Context/CampaignContext';
 
-export default function MobilePreview() {
-  const { campaignData, activePreviewPage, setActivePreviewPage } = useCampaign();
-  const { content, styling } = campaignData;
+function MobilePreview() {
+  const { campaignData } = useCampaign();
   const [selectedRating, setSelectedRating] = useState(0);
+  const [activeBadges, setActiveBadges] = useState([]);
 
-  const containerStyle = {
-    backgroundColor: styling.backgroundColor,
-    borderRadius: styling.borderRadius,
+  const toggleBadge = (badge) => {
+    setActiveBadges((prev) =>
+      prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge]
+    );
   };
 
-  const titleStyle = {
-    color: styling.titleColor,
-    fontSize: styling.fontSize,
-    fontWeight: styling.fontWeight,
-  };
-
-  const buttonStyle = {
-    backgroundColor: styling.buttonColor,
-    color: styling.buttonTextColor,
-    width: styling.buttonWidth,
-    height: styling.buttonHeight,
-    borderRadius: styling.borderRadius,
+  const widgetStyles = {
+    backgroundColor: campaignData.backgroundColor,
+    color: campaignData.textColor,
+    borderRadius: campaignData.borderRadius,
   };
 
   return (
-    /* FIX: Changed h-full justify-center to min-h-full justify-start with vertical padding */
-    <div className="flex flex-col items-center justify-start min-h-full bg-slate-100 p-4 border-t lg:border-t-0 lg:border-l border-gray-200">
-      
-      {/* Preview Viewport Switcher Toggles */}
-      <div className="flex gap-1.5 mb-6 bg-white p-1 rounded-xl border border-gray-200 shadow-xs z-10 shrink-0">
-        <button
-          onClick={() => setActivePreviewPage('feedback')}
-          className={`px-4 py-1.5 text-xs font-bold rounded-lg transition ${activePreviewPage === 'feedback' ? 'bg-indigo-600 text-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
-        >
-          Feedback Popup
-        </button>
-        <button
-          onClick={() => setActivePreviewPage('thanks')}
-          className={`px-4 py-1.5 text-xs font-bold rounded-lg transition ${activePreviewPage === 'thanks' ? 'bg-indigo-600 text-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
-        >
-          Success Screen
-        </button>
-      </div>
+    <div className="mx-auto w-[300px] h-[600px] bg-black rounded-[40px] p-3 shadow-2xl border-4 border-gray-800 relative flex flex-col overflow-hidden">
+      {/* Phone Screen Top Speaker/Notch Notch */}
+      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 h-5 w-28 bg-black rounded-b-xl z-20"></div>
 
-      {/* Simulated Device Frame Shell - Added shrink-0 and mb-8 to preserve space */}
-      <div className="w-[315px] h-[630px] bg-neutral-950 rounded-[44px] p-3 shadow-2xl relative border-4 border-neutral-800/90 flex flex-col justify-between overflow-hidden shrink-0 mb-8">
-        {/* Hardware Notch Graphic Overlay */}
-        <div className="w-24 h-4 bg-neutral-950 rounded-full absolute top-4 left-1/2 transform -translate-x-1/2 z-30"></div>
-        
-        {/* Device Interface Layout */}
-        <div className="bg-slate-300 w-full h-full rounded-[34px] overflow-hidden relative flex flex-col justify-end p-3 shadow-inner">
-          <div className="absolute inset-0 bg-cover bg-center opacity-30 pointer-events-none mix-blend-overlay" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600')" }}></div>
-          
-          {/* LIVE CUSTOM WIDGET INSTANCE */}
-          <div style={containerStyle} className="w-full p-4 shadow-xl relative z-10 border border-black/5 animate-fade-in-up select-none">
-            
-            {activePreviewPage === 'feedback' ? (
-              <>
-                <h4 style={titleStyle} className="text-center leading-snug mb-1">{content.initialTitle}</h4>
-                <p style={{ color: styling.subtitleColor }} className="text-center text-[11px] leading-normal mb-3">{content.initialSubtitle}</p>
-                
-                {/* Metric Star/Number Dynamic Render Block */}
-                <div className="flex justify-center gap-2 mb-3.5">
-                  {[1, 2, 3, 4, 5].map((idx) => {
-                    const isSelected = idx <= selectedRating;
+      {/* Simulated Background Content Area */}
+      <div className="flex-1 bg-gradient-to-b from-slate-700 to-slate-900 rounded-[32px] p-4 flex flex-col justify-end relative overflow-hidden">
+        <div className="absolute inset-0 flex flex-col p-4 pt-8 text-slate-500 text-[10px] space-y-2 opacity-20 select-none">
+          <div className="h-3 bg-slate-400 rounded w-2/3"></div>
+          <div className="h-16 bg-slate-400 rounded w-full"></div>
+          <div className="h-20 bg-slate-400 rounded w-full"></div>
+        </div>
+
+        {/* CSAT Campaign Widget Modal Element */}
+        <div style={widgetStyles} className="p-5 shadow-2xl border border-white/10 transition-all duration-300 z-10 w-full">
+          {campaignData.currentScreen === 'feedback' ? (
+            <div className="text-center">
+              <h4 className="text-base font-bold leading-tight mb-1">{campaignData.title || 'Untitled Campaign'}</h4>
+              <p className="text-xs opacity-75 mb-4 leading-relaxed">{campaignData.subtitle}</p>
+
+              {/* Dynamic Ratings Layout Render Engine */}
+              <div className="flex justify-center items-center gap-2 mb-4">
+                {campaignData.ratingType === 'stars'
+                  ? [1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setSelectedRating(star)}
+                        className={`text-2xl transition ${star <= selectedRating ? 'text-amber-400 scale-110' : 'text-gray-300 opacity-60'}`}
+                      >
+                        ★
+                      </button>
+                    ))
+                  : [1, 2, 3, 4, 5].map((num) => (
+                      <button
+                        key={num}
+                        onClick={() => setSelectedRating(num)}
+                        className={`w-7 h-7 text-xs font-bold rounded-full border transition flex items-center justify-center ${
+                          num === selectedRating
+                            ? 'bg-indigo-600 border-indigo-600 text-white scale-105'
+                            : 'border-gray-300 hover:bg-gray-50'
+                        }`}
+                        style={num === selectedRating ? { backgroundColor: campaignData.buttonColor, color: campaignData.buttonTextColor } : {}}
+                      >
+                        {num}
+                      </button>
+                    ))}
+              </div>
+
+              {/* Selection Feedback Tag Badges Selection Array Layout */}
+              {campaignData.badges.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1 mb-4">
+                  {campaignData.badges.map((badge, index) => {
+                    const isSelected = activeBadges.includes(badge);
                     return (
                       <button
-                        key={idx}
-                        onClick={() => setSelectedRating(idx)}
-                        style={{ color: isSelected ? styling.ratingSelectedColor : styling.ratingUnselectedColor }}
-                        className="text-2xl font-bold transition-transform active:scale-90 focus:outline-none"
+                        key={index}
+                        onClick={() => toggleBadge(badge)}
+                        className={`px-2 py-1 text-[10px] font-medium rounded-full border transition ${
+                          isSelected ? 'bg-gray-800 text-white border-gray-800' : 'bg-transparent opacity-60 border-current'
+                        }`}
                       >
-                        {content.ratingType === 'stars' ? '★' : idx}
+                        {badge}
                       </button>
                     );
                   })}
                 </div>
+              )}
 
-                {/* Optional Tag Badges */}
-                <div className="flex flex-wrap gap-1 justify-center mb-3">
-                  {content.options.map((opt, idx) => (
-                    <span key={idx} className="bg-black/5 text-[9px] font-bold px-2 py-0.5 rounded-md border border-black/5 text-gray-700 max-w-full truncate">
-                      {opt}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Dynamic Multiline Feedback box */}
-                {content.showComment && (
-                  <textarea
-                    placeholder="Tell us more details..."
-                    className="w-full text-[11px] p-2 border border-gray-200/60 rounded-lg mb-3 bg-white/70 backdrop-blur-xs placeholder-gray-400 font-medium resize-none focus:outline-none"
-                    rows={2}
-                    disabled
-                  />
-                )}
-
-                <button style={buttonStyle} className="text-xs font-bold shadow-xs flex items-center justify-center transition-opacity hover:opacity-95">
-                  {content.submitText}
-                </button>
-              </>
-            ) : (
-              <div className="text-center flex flex-col items-center py-2">
-                {content.thankYouMedia ? (
-                  <img src={content.thankYouMedia} alt="Media Graphic" className="w-14 h-14 object-cover rounded-xl mb-3 border border-black/5" />
-                ) : (
-                  <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 border border-emerald-100 text-lg font-bold mb-3">✓</div>
-                )}
-                <h4 style={titleStyle} className="leading-snug mb-1">{content.thankYouTitle}</h4>
-                <p style={{ color: styling.subtitleColor }} className="text-[11px] leading-normal mb-4">{content.thankYouSubtitle}</p>
-                
-                <button style={buttonStyle} className="text-xs font-bold shadow-xs flex items-center justify-center">
-                  {content.thankYouButtonText}
-                </button>
+              {/* Action Trigger Buttons */}
+              <button
+                type="button"
+                className="w-full py-2.5 text-xs font-semibold shadow-sm transition active:scale-[0.99]"
+                style={{
+                  backgroundColor: campaignData.buttonColor,
+                  color: campaignData.buttonTextColor,
+                  borderRadius: `calc(${campaignData.borderRadius} / 1.5)`,
+                }}
+              >
+                Submit Feedback
+              </button>
+            </div>
+          ) : (
+            /* Thank you confirmation state view layout */
+            <div className="text-center py-4">
+              <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">
+                ✓
               </div>
-            )}
-          </div>
+              <h4 className="text-base font-bold leading-tight mb-1">{campaignData.successTitle}</h4>
+              <p className="text-xs opacity-75 leading-relaxed">{campaignData.successSubtitle}</p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Phone Screen Home Indicator bar */}
+      <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 h-1 w-24 bg-white/40 rounded-full"></div>
     </div>
   );
 }
+
+export default MobilePreview;
