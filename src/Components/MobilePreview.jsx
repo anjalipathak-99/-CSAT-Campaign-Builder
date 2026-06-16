@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCampaign } from '../Context/CampaignContext';
 
 function MobilePreview() {
-  const { campaignData } = useCampaign();
+  const { campaignData, updateCampaign } = useCampaign();
   const [selectedRating, setSelectedRating] = useState(0);
   const [activeBadges, setActiveBadges] = useState([]);
 
@@ -13,10 +13,13 @@ function MobilePreview() {
   };
 
   const widgetStyles = {
-    backgroundColor: campaignData.backgroundColor,
-    color: campaignData.textColor,
-    borderRadius: campaignData.borderRadius,
+    backgroundColor: campaignData?.backgroundColor || '#ffffff',
+    color: campaignData?.textColor || '#1f2937',
+    borderRadius: campaignData?.borderRadius || '12px',
   };
+
+  // Safely grab badges array with a fallback default
+  const badgesList = campaignData?.badges || [];
 
   return (
     <div className="mx-auto w-[280px] h-[540px] bg-black rounded-[40px] p-3 shadow-2xl border-4 border-gray-800 relative flex flex-col overflow-hidden select-none">
@@ -24,7 +27,6 @@ function MobilePreview() {
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 h-4 w-24 bg-black rounded-b-xl z-20"></div>
 
       {/* Simulated Background Content Area */}
-      {/* FIX 1: Changed 'justify-end' to 'justify-center' so the widget stays perfectly centered inside the viewport */}
       <div className="flex-1 bg-gradient-to-b from-slate-700 to-slate-900 rounded-[32px] p-3 flex flex-col justify-center relative overflow-y-auto scrollbar-none [webkit-overflow-scrolling:touch]">
         
         {/* Mock Abstract App Layout in the Background */}
@@ -34,23 +36,22 @@ function MobilePreview() {
         </div>
 
         {/* CSAT Campaign Widget Modal Element */}
-        {/* FIX 2: Reduced internal padding slightly (p-3.5) to reclaim screen space for structural buttons */}
         <div 
           style={widgetStyles} 
           className="p-3.5 shadow-2xl border border-white/10 transition-all duration-300 z-10 w-full"
         >
-          {campaignData.currentScreen === 'feedback' ? (
+          {campaignData?.currentScreen === 'feedback' ? (
             <div className="text-center">
               <h4 className="text-xs font-bold leading-tight mb-1 break-words">
-                {campaignData.title || 'Untitled Campaign'}
+                {campaignData?.title || 'Untitled Campaign'}
               </h4>
               <p className="text-[10px] opacity-75 mb-2.5 leading-relaxed break-words">
-                {campaignData.subtitle}
+                {campaignData?.subtitle || 'Please provide your subtitle description.'}
               </p>
 
               {/* Dynamic Ratings Layout Render Engine */}
               <div className="flex justify-center items-center flex-wrap gap-1.5 mb-2.5">
-                {campaignData.ratingType === 'stars'
+                {campaignData?.ratingType === 'stars'
                   ? [1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -73,7 +74,7 @@ function MobilePreview() {
                             ? 'bg-indigo-600 border-indigo-600 text-white scale-105'
                             : 'border-gray-300 hover:bg-gray-50'
                         }`}
-                        style={num === selectedRating ? { backgroundColor: campaignData.buttonColor, color: campaignData.buttonTextColor } : {}}
+                        style={num === selectedRating ? { backgroundColor: campaignData?.buttonColor, color: campaignData?.buttonTextColor } : {}}
                       >
                         {num}
                       </button>
@@ -81,9 +82,9 @@ function MobilePreview() {
               </div>
 
               {/* Selection Feedback Tag Badges Selection Array Layout */}
-              {campaignData.badges.length > 0 && (
+              {badgesList.length > 0 && (
                 <div className="flex flex-wrap justify-center gap-1 mb-3">
-                  {campaignData.badges.map((badge, index) => {
+                  {badgesList.map((badge, index) => {
                     const isSelected = activeBadges.includes(badge);
                     return (
                       <button
@@ -104,11 +105,12 @@ function MobilePreview() {
               {/* Action Trigger Submit Button */}
               <button
                 type="button"
+                onClick={() => updateCampaign('currentScreen', 'success')}
                 className="w-full py-2 text-[10px] font-semibold shadow-sm transition-all transform active:scale-[0.98] block"
                 style={{
-                  backgroundColor: campaignData.buttonColor,
-                  color: campaignData.buttonTextColor,
-                  borderRadius: `calc(${campaignData.borderRadius} / 1.5)`,
+                  backgroundColor: campaignData?.buttonColor || '#4f46e5',
+                  color: campaignData?.buttonTextColor || '#ffffff',
+                  borderRadius: campaignData?.borderRadius ? `calc(${campaignData.borderRadius} / 1.5)` : '6px',
                 }}
               >
                 Submit Feedback
@@ -120,8 +122,23 @@ function MobilePreview() {
               <div className="w-7 h-7 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold">
                 ✓
               </div>
-              <h4 className="text-xs font-bold leading-tight mb-1 break-words">{campaignData.successTitle}</h4>
-              <p className="text-[10px] opacity-75 leading-relaxed break-words">{campaignData.successSubtitle}</p>
+              <h4 className="text-xs font-bold leading-tight mb-1 break-words">
+                {campaignData?.successTitle || 'Thank You!'}
+              </h4>
+              <p className="text-[10px] opacity-75 leading-relaxed break-words mb-2">
+                {campaignData?.successSubtitle || 'Your feedback has been successfully recorded.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedRating(0);
+                  setActiveBadges([]);
+                  updateCampaign('currentScreen', 'feedback');
+                }}
+                className="text-[9px] text-indigo-600 hover:underline font-medium block mx-auto mt-2"
+              >
+                ← Back to Form
+              </button>
             </div>
           )}
         </div>
